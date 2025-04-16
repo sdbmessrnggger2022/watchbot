@@ -1,50 +1,26 @@
-import os, json, time, requests, asyncio
 from telethon import TelegramClient, events
-from telethon.sessions import StringSession
-with open("accounts.json", "r") as f:
-    accounts = json.load(f)
+import json
+import asyncio
 
-for acc in accounts:
-    api_id = acc['api_id']
-    api_hash = acc['api_hash']
-    session = acc['session']  # لو عندك مسبقًا
-# ——— دالة لجلب الإعدادات ———
-def get_cfg():
-    return requests.get(config_url).json()
+async def run_account(api_id, api_hash, session_name):
+    client = TelegramClient(session_name, api_id, api_hash)
+    await client.start()
 
-# ——— إعداد كافة العملاء ———
-clients = []
-for cl in get_cfg().get('clients', []):
-    ss = cl['session']
-    client = TelegramClient(StringSession(ss), api_id, api_hash)
-    clients.append(client)
-
-# ——— معالجات الرسائل لكل عميل ———
-for client in clients:
     @client.on(events.NewMessage)
     async def handler(event):
-        cfg = get_cfg()
-        text = (event.raw_text or "").lower()
-        # استبعاد المحظورات
-        if any(b in text for b in cfg.get('banned', [])):
-            return
-        # مطابقة الكلمات المفتاحية
-        for w in cfg.get('trigger', []):
-            if w in text:
-                link = await event.message.get_link()
-                await client.send_message(
-                    cfg['target'],
-                    f"📬 {event.raw_text}\n🔗 {link}"
-                )
-                break
+        print(f"[{session_name}] رسالة جديدة في {event.chat.title if event.chat else 'خاص'}: {event.text}")
 
-# ——— تشغيل جميع العملاء ———
+    print(f"✅ [{session_name}] الحساب شغال...")
+    await client.run_until_disconnected()
+
 async def main():
-    # بدء كل عميل
-    for c in clients:
-        await c.start()
-    # انتظر حتى يفصل الجميع (سيبهم شغالين)
-    await asyncio.gather(*(c.run_until_disconnected() for c in clients))
+    with open("accounts.json", "r") as f:
+        accounts = json.load(f)
 
-if __name__ == '__main__':
-    asyncio.run(main())
+    tasks = []
+    for acc in accounts:
+        tasks.append(run_account(acc["api_id"], acc["api_hash"], acc["session"]))
+
+    await asyncio.gather(*tasks)
+
+asyncio.run(main())
