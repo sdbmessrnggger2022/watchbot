@@ -1,26 +1,16 @@
+import os
 from telethon import TelegramClient, events
-import json
-import asyncio
 
-async def run_account(api_id, api_hash, session_name):
-    client = TelegramClient(session_name, api_id, api_hash)
-    await client.start()
+api_id = int(os.getenv("API_ID"))
+api_hash = os.getenv("API_HASH")
+session_string = os.getenv("SESSION_STRING")
 
-    @client.on(events.NewMessage)
-    async def handler(event):
-        print(f"[{session_name}] رسالة جديدة في {event.chat.title if event.chat else 'خاص'}: {event.text}")
+client = TelegramClient(StringSession(session_string), api_id, api_hash)
 
-    print(f"✅ [{session_name}] الحساب شغال...")
-    await client.run_until_disconnected()
+@client.on(events.NewMessage)
+async def handler(event):
+    print(f"New message from {event.chat_id}: {event.raw_text}")
 
-async def main():
-    with open("accounts.json", "r") as f:
-        accounts = json.load(f)
-
-    tasks = []
-    for acc in accounts:
-        tasks.append(run_account(acc["api_id"], acc["api_hash"], acc["session"]))
-
-    await asyncio.gather(*tasks)
-
-asyncio.run(main())
+print("Starting client...")
+client.start()
+client.run_until_disconnected()
