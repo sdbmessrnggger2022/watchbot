@@ -1,15 +1,12 @@
 # WatchBot
+A Telegram message monitoring bot using Telethon.
 
-بوت تيليجرام للتحكم في حسابات تيليجرام تراقب الجروبات عبر مكتبة Telethon.
+## Setup on Railway
 
-## طريقة الاستخدام
-
-1. أنشئ بوت تيليجرام من [BotFather](https://t.me/BotFather).
-2. أنشئ تطبيق تيليجرام من [my.telegram.org](https://my.telegram.org).
-3. أضف القيم في بيئة التشغيل:
-
-- `BOT_TOKEN`
-- `BOT_API_ID`
-- `BOT_API_HASH`
-
-4. شغل `bot.py` لإضافة الحسابات:
+1. Create a new project.
+2. Link this repo or upload manually.
+3. Add the following environment variables:
+   - `API_ID`
+   - `API_HASH`
+   - `SESSION_STRING`
+4. Deploy and enjoy!
