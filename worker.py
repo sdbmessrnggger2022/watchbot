@@ -1,12 +1,13 @@
 import os, json, time, requests, asyncio
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
+with open("accounts.json", "r") as f:
+    accounts = json.load(f)
 
-# ——— إعدادات من متغيرات البيئة ———
-api_id     = int(os.environ['API_ID'])
-api_hash   = os.environ['API_HASH']
-config_url = os.environ['CONFIG_URL']  # https://yourdomain.com/watchmassage/config.json?token=XYZ
-
+for acc in accounts:
+    api_id = acc['api_id']
+    api_hash = acc['api_hash']
+    session = acc['session']  # لو عندك مسبقًا
 # ——— دالة لجلب الإعدادات ———
 def get_cfg():
     return requests.get(config_url).json()
